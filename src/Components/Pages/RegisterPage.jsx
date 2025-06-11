@@ -15,7 +15,7 @@ const RegisterPage = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:5000/users?email=${userData.email}`);
+      const res = await fetch(`https://law-clinik-back.onrender.com/users?email=${userData.email}`);
       const existingUsers = await res.json();
 
       if (existingUsers.length > 0) {
@@ -23,7 +23,7 @@ const RegisterPage = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/users`, {
+      const response = await fetch(`https://law-clinik-back.onrender.com/users`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(userData),

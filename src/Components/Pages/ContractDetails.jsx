@@ -22,7 +22,7 @@ function ContractDetails() {
   useEffect(() => {
     const fetchContract = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/contracts/${id}`);
+        const res = await fetch(`https://law-clinik-back.onrender.com/contracts/${id}`);
         if (!res.ok) throw new Error("Contract not found");
         const data = await res.json();
         setContract(data);
@@ -43,7 +43,7 @@ function ContractDetails() {
       history: contract.history ? [...contract.history, { action, timestamp }] : [{ action, timestamp }]
     };
     setContract(updatedContract);
-    await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+    await fetch(`https://law-clinik-back.onrender.com/contracts/${updatedContract.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedContract),
@@ -66,7 +66,7 @@ function ContractDetails() {
   const handleSave = async () => {
     addHistoryRecord("Договор сохранён");
     const updatedContract = { ...contract };
-    await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+    await fetch(`https://law-clinik-back.onrender.com/contracts/${updatedContract.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedContract),
@@ -78,7 +78,7 @@ function ContractDetails() {
   const handleSignContract = async () => {
     addHistoryRecord("Договор подписан");
     const updatedContract = { ...contract, status: "Подписан" };
-    await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+    await fetch(`https://law-clinik-back.onrender.com/contracts/${updatedContract.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updatedContract),
@@ -93,7 +93,7 @@ function ContractDetails() {
       addHistoryRecord("Добавлена новая подпись");
 
       const updatedContract = { ...contract, signature: signatureData };
-      await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+      await fetch(`https://law-clinik-back.onrender.com/contracts/${updatedContract.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedContract),

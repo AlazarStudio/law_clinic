@@ -17,7 +17,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const res = await fetch(`http://localhost:5000/users?email=${credentials.email}&password=${credentials.password}`);
+      const res = await fetch(`https://law-clinik-back.onrender.com/users?email=${credentials.email}&password=${credentials.password}`);
       const users = await res.json();
 
       if (users.length === 1) {

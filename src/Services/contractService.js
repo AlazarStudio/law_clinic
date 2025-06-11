@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/contracts";
+const API_URL = "https://law-clinik-back.onrender.com/contracts";
 
 const getContracts = async (userId) => {
   const res = await fetch(`${API_URL}?userId=${userId}`);
