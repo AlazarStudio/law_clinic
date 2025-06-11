@@ -5,6 +5,18 @@
       "name": "Иванов Иван",
       "email": "ivanov@mail.ru",
       "password": "ivanov"
+    },
+    {
+      "id": "user2",
+      "name": "Петров Петр",
+      "email": "petrov@mail.ru",
+      "password": "petrov"
+    },
+    {
+      "id": "user3",
+      "name": "Сергеев Сергей",
+      "email": "sergeev@mail.ru",
+      "password": "sergeev"
     }
   ],
   "contracts": [
