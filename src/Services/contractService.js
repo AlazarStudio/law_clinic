@@ -1,27 +1,26 @@
-import contractsData from "../Data/contracts.json";
+const API_URL = "http://localhost:5000/contracts";
 
-const CONTRACTS_KEY = "contracts_data";
-
-const contractService = {
-  getContracts: () => {
-    const data = localStorage.getItem(CONTRACTS_KEY);
-    if (!data) {
-      localStorage.setItem(CONTRACTS_KEY, JSON.stringify(contractsData));
-      return contractsData;
-    }
-    return JSON.parse(data);
-  },
-
-  addContract: (contract) => {
-    const contracts = contractService.getContracts();
-    contracts.push({ id: Date.now(), ...contract });
-    localStorage.setItem(CONTRACTS_KEY, JSON.stringify(contracts));
-  },
-
-  deleteContract: (id) => {
-    const contracts = contractService.getContracts().filter(contract => contract.id !== id);
-    localStorage.setItem(CONTRACTS_KEY, JSON.stringify(contracts));
-  }
+const getContracts = async (userId) => {
+  const res = await fetch(`${API_URL}?userId=${userId}`);
+  return await res.json();
 };
 
-export default contractService;
+const addContract = async (contract) => {
+  await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(contract),
+  });
+};
+
+const deleteContract = async (id) => {
+  await fetch(`${API_URL}/${id}`, {
+    method: "DELETE"
+  });
+};
+
+export default {
+  getContracts,
+  addContract,
+  deleteContract,
+};

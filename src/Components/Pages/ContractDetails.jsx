@@ -20,34 +20,36 @@ function ContractDetails() {
   const [newField, setNewField] = useState({ name: "", value: "" });
 
   useEffect(() => {
-    const contracts = contractService.getContracts();
-    const foundContract = contracts.find(c => c.id === Number(id));
-    if (foundContract) {
-      setContract(foundContract);
-      setPrevContract({ ...foundContract }); // Сохраняем копию для отслеживания изменений
-    } else {
-      navigate("/contracts");
-    }
+    const fetchContract = async () => {
+      try {
+        const res = await fetch(`http://localhost:5000/contracts/${id}`);
+        if (!res.ok) throw new Error("Contract not found");
+        const data = await res.json();
+        setContract(data);
+        setPrevContract({ ...data });
+      } catch {
+        navigate("/contracts");
+      }
+    };
+
+    fetchContract();
   }, [id, navigate]);
 
-  const addHistoryRecord = (action) => {
+
+  const addHistoryRecord = async (action) => {
     const timestamp = new Date().toLocaleString();
-    setContract(prev => {
-      if (!prev) return prev;
-
-      const updatedContract = {
-        ...prev,
-        history: prev.history ? [...prev.history, { action, timestamp }] : [{ action, timestamp }]
-      };
-
-      const contracts = contractService.getContracts().map(c =>
-        c.id === updatedContract.id ? updatedContract : c
-      );
-      localStorage.setItem("contracts_data", JSON.stringify(contracts));
-
-      return updatedContract;
+    const updatedContract = {
+      ...contract,
+      history: contract.history ? [...contract.history, { action, timestamp }] : [{ action, timestamp }]
+    };
+    setContract(updatedContract);
+    await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedContract),
     });
   };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,45 +63,45 @@ function ContractDetails() {
     setPrevContract({ ...contract, [name]: value }); // Обновляем копию
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     addHistoryRecord("Договор сохранён");
-    setContract(prev => {
-      const updatedContract = { ...prev };
-      const contracts = contractService.getContracts().map(c =>
-        c.id === updatedContract.id ? updatedContract : c
-      );
-      localStorage.setItem("contracts_data", JSON.stringify(contracts));
-      return updatedContract;
+    const updatedContract = { ...contract };
+    await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedContract),
     });
     navigate("/contracts");
   };
 
-  const handleSignContract = () => {
+
+  const handleSignContract = async () => {
     addHistoryRecord("Договор подписан");
-    setContract(prev => {
-      const updatedContract = { ...prev, status: "Подписан" };
-      const contracts = contractService.getContracts().map(c =>
-        c.id === updatedContract.id ? updatedContract : c
-      );
-      localStorage.setItem("contracts_data", JSON.stringify(contracts));
-      return updatedContract;
+    const updatedContract = { ...contract, status: "Подписан" };
+    await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updatedContract),
     });
+    setContract(updatedContract);
   };
 
-  const handleSaveSignature = () => {
+
+  const handleSaveSignature = async () => {
     if (signatureRef.current) {
       const signatureData = signatureRef.current.toDataURL();
       addHistoryRecord("Добавлена новая подпись");
-      setContract(prev => {
-        const updatedContract = { ...prev, signature: signatureData };
-        const contracts = contractService.getContracts().map(c =>
-          c.id === updatedContract.id ? updatedContract : c
-        );
-        localStorage.setItem("contracts_data", JSON.stringify(contracts));
-        return updatedContract;
+
+      const updatedContract = { ...contract, signature: signatureData };
+      await fetch(`http://localhost:5000/contracts/${updatedContract.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedContract),
       });
+      setContract(updatedContract);
     }
   };
+
 
   const handleDownloadPDF = async () => {
     const doc = new jsPDF();
@@ -122,7 +124,8 @@ function ContractDetails() {
       ["Название", contract.title],
       ["Клиент", contract.client],
       ["Статус", contract.status],
-      ["Дата", contract.date]
+      ["Дата", contract.date],
+      ["Срок действия", contract.endDate || "—"]
     ];
 
     if (contract.additionalFields && contract.additionalFields.length > 0) {
@@ -161,6 +164,8 @@ function ContractDetails() {
       <TextField fullWidth margin="dense" label="Название" name="title" value={contract.title} onChange={handleChange} />
       <TextField fullWidth margin="dense" label="Клиент" name="client" value={contract.client} onChange={handleChange} />
       <TextField fullWidth margin="dense" label="Дата" type="date" name="date" value={contract.date} onChange={handleChange} />
+      <TextField fullWidth margin="dense" label="Срок действия" type="date" name="endDate" value={contract.endDate || ""} onChange={handleChange} />
+
 
       {/* Отображение и редактирование дополнительных полей */}
       <Box mt={3}>

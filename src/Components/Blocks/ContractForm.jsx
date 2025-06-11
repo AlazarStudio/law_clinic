@@ -5,13 +5,14 @@ import {
 import { Add, Delete } from "@mui/icons-material";
 import contractService from "../../Services/contractService";
 
-function ContractForm({ open, handleClose, refreshContracts }) {
+function ContractForm({ open, handleClose, refreshContracts, userId }) {
   const [contract, setContract] = useState({
     title: "",
     client: "",
     status: "На согласовании",
-    date: new Date().toISOString().split("T")[0], // Сегодняшняя дата
-    additionalFields: [], // Новые поля
+    date: new Date().toISOString().split("T")[0],
+    endDate: "", // 🔥 новое поле
+    additionalFields: [],
   });
 
   const [newField, setNewField] = useState({ name: "", value: "" });
@@ -22,32 +23,33 @@ function ContractForm({ open, handleClose, refreshContracts }) {
 
   const handleAddField = () => {
     if (newField.name.trim() && newField.value.trim()) {
-      setContract(prevContract => ({
-        ...prevContract,
-        additionalFields: prevContract.additionalFields
-          ? [...prevContract.additionalFields, { ...newField }]
-          : [{ ...newField }]
+      setContract(prev => ({
+        ...prev,
+        additionalFields: [...prev.additionalFields, { ...newField }],
       }));
-  
-      // Очистка полей после добавления
       setNewField({ name: "", value: "" });
     }
   };
-  
-  const handleRemoveField = (index) => {
-    setContract(prevContract => ({
-      ...prevContract,
-      additionalFields: prevContract.additionalFields.filter((_, i) => i !== index),
-    }));
-  };  
 
-  const handleSubmit = () => {
+  const handleRemoveField = (index) => {
+    setContract(prev => ({
+      ...prev,
+      additionalFields: prev.additionalFields.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSubmit = async () => {
     if (!contract.title || !contract.client || !contract.date) {
       alert("Заполните основные поля!");
       return;
     }
 
-    contractService.addContract(contract);
+    const contractToSave = {
+      ...contract,
+      userId,
+    };
+
+    await contractService.addContract(contractToSave);
     refreshContracts();
     handleClose();
   };
@@ -59,8 +61,9 @@ function ContractForm({ open, handleClose, refreshContracts }) {
         <TextField fullWidth margin="dense" label="Название" name="title" onChange={handleChange} />
         <TextField fullWidth margin="dense" label="Клиент" name="client" onChange={handleChange} />
         <TextField fullWidth margin="dense" label="Дата" type="date" name="date" onChange={handleChange} defaultValue={contract.date} />
+        <TextField fullWidth margin="dense" label="Срок действия" type="date" name="endDate" onChange={handleChange} defaultValue={contract.date}/>
 
-        {/* 🔥 Дополнительные поля */}
+
         <Typography variant="h6" mt={3}>Дополнительные поля</Typography>
         {contract.additionalFields.map((field, index) => (
           <Box key={index} display="flex" alignItems="center" gap={1} mt={1}>
@@ -72,7 +75,6 @@ function ContractForm({ open, handleClose, refreshContracts }) {
           </Box>
         ))}
 
-        {/* 🔥 Поля для ввода нового значения */}
         <Box display="flex" gap={1} mt={2}>
           <TextField fullWidth label="Название поля" value={newField.name} onChange={(e) => setNewField({ ...newField, name: e.target.value })} />
           <TextField fullWidth label="Значение" value={newField.value} onChange={(e) => setNewField({ ...newField, value: e.target.value })} />

@@ -17,7 +17,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
-  return <AuthContext.Provider value={{ user, login, logout }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
 
+// ✅ экспорт для useContext
 export const useAuth = () => useContext(AuthContext);
+
+// ✅ Явный экспорт, чтобы можно было писать: import { AuthContext }
+export { AuthContext };

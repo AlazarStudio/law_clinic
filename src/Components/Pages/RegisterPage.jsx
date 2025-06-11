@@ -5,24 +5,39 @@ import { useNavigate } from "react-router-dom";
 const RegisterPage = () => {
   const navigate = useNavigate();
   const [userData, setUserData] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (users.some(u => u.email === userData.email)) {
-      alert("Email уже зарегистрирован!");
-      return;
+    try {
+      const res = await fetch(`http://localhost:5000/users?email=${userData.email}`);
+      const existingUsers = await res.json();
+
+      if (existingUsers.length > 0) {
+        setError("Email уже зарегистрирован!");
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData),
+      });
+
+      if (response.ok) {
+        alert("Регистрация успешна! Теперь войдите в аккаунт.");
+        navigate("/login");
+      } else {
+        setError("Ошибка при регистрации.");
+      }
+    } catch (err) {
+      setError("Ошибка подключения к серверу.");
     }
-
-    users.push(userData);
-    localStorage.setItem("users", JSON.stringify(users));
-    alert("Регистрация успешна! Теперь войдите в аккаунт.");
-    navigate("/login");
   };
 
   return (
@@ -30,10 +45,11 @@ const RegisterPage = () => {
       <Typography variant="h4" gutterBottom>Регистрация</Typography>
       <Box component="form" onSubmit={handleSubmit} display="flex" flexDirection="column" gap={2}>
         <TextField label="Имя" name="name" value={userData.name} onChange={handleChange} required />
-        <TextField label="Email" name="email" value={userData.email} onChange={handleChange} required />
-        <TextField label="Пароль" type="password" name="password" value={userData.password} onChange={handleChange} required />
+        <TextField label="Email" name="email" type="email" value={userData.email} onChange={handleChange} required />
+        <TextField label="Пароль" name="password" type="password" value={userData.password} onChange={handleChange} required />
         <Button type="submit" variant="contained" color="primary">Зарегистрироваться</Button>
         <Button variant="outlined" onClick={() => navigate("/login")}>Уже есть аккаунт?</Button>
+        {error && <Typography color="error">{error}</Typography>}
       </Box>
     </Container>
   );

@@ -60,7 +60,7 @@ const buttonStyle = {
   cursor: 'pointer',
   padding: '10px',
   border: 'none',
-  position: 'absolute',
+  position: 'fixed',
   bottom: '20px',
   right: '20px',
 };
