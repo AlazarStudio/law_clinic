@@ -22,7 +22,15 @@ const LoginPage = () => {
 
       if (users.length === 1) {
         login(users[0]); // сохранить в контексте и localStorage
-        navigate("/");
+
+        if (users[0].role === "lawyer") {
+          navigate("/contracts");
+        } else if (users[0].role === "client") {
+          navigate("/client");
+        } else {
+          navigate("/");
+        }
+
       } else {
         setError("Неверный email или пароль!");
       }

@@ -11,6 +11,9 @@ import ProfilePage from "./Components/Pages/ProfilePage";
 import { AuthProvider, useAuth } from "./AuthContext"; // ✅ без .jsx в конце
 import LoginPage from "./Components/Pages/LoginPage";
 import RegisterPage from "./Components/Pages/RegisterPage";
+import ClientContractsPage from "./Components/Pages/ClientContractsPage";
+import LawyersPage from "./Components/Pages/LawyersPage";
+import ClientsPage from "./Components/Pages/ClientsPage";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
@@ -29,8 +32,12 @@ function App() {
         <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<HomePage />} />
           <Route path="contracts" element={<Contracts_Page />} />
+          <Route path="client" element={<ClientContractsPage />} />
           <Route path="contracts/:id" element={<ContractDetails />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="lawyers" element={<LawyersPage />} />
+          <Route path="clients" element={<ClientsPage />} />
+
           <Route path="*" element={<Non_Found_Page />} />
         </Route>
       </Routes>

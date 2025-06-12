@@ -8,6 +8,7 @@ import contractService from "../../Services/contractService";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import { Delete } from "@mui/icons-material";
+import { useAuth } from "../../AuthContext";
 
 
 function ContractDetails() {
@@ -18,6 +19,8 @@ function ContractDetails() {
   const signatureRef = useRef(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [newField, setNewField] = useState({ name: "", value: "" });
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -161,10 +164,10 @@ function ContractDetails() {
     <Container>
       <Typography variant="h4" gutterBottom>Редактирование договора</Typography>
 
-      <TextField fullWidth margin="dense" label="Название" name="title" value={contract.title} onChange={handleChange} />
-      <TextField fullWidth margin="dense" label="Клиент" name="client" value={contract.client} onChange={handleChange} />
-      <TextField fullWidth margin="dense" label="Дата" type="date" name="date" value={contract.date} onChange={handleChange} />
-      <TextField fullWidth margin="dense" label="Срок действия" type="date" name="endDate" value={contract.endDate || ""} onChange={handleChange} />
+      <TextField fullWidth margin="dense" label="Название" name="title" value={contract.title} onChange={handleChange} disabled={user?.role === "client"} />
+      <TextField fullWidth margin="dense" label="Клиент" name="client" value={contract.client} onChange={handleChange} disabled={user?.role === "client"} />
+      <TextField fullWidth margin="dense" label="Дата" type="date" name="date" value={contract.date} onChange={handleChange} disabled={user?.role === "client"} />
+      <TextField fullWidth margin="dense" label="Срок действия" type="date" name="endDate" value={contract.endDate || ""} onChange={handleChange} disabled={user?.role === "client"} />
 
 
       {/* Отображение и редактирование дополнительных полей */}
@@ -179,6 +182,7 @@ function ContractDetails() {
                 margin="dense"
                 label="Название поля"
                 value={field.name}
+                disabled={user?.role === "client"}
                 onChange={(e) => {
                   const updatedFields = contract.additionalFields.map((f, i) =>
                     i === index ? { ...f, name: e.target.value } : f
@@ -191,6 +195,7 @@ function ContractDetails() {
                 margin="dense"
                 label="Значение"
                 value={field.value}
+                disabled={user?.role === "client"}
                 onChange={(e) => {
                   const updatedFields = contract.additionalFields.map((f, i) =>
                     i === index ? { ...f, value: e.target.value } : f
@@ -214,93 +219,97 @@ function ContractDetails() {
         )}
 
         {/* Форма для добавления нового дополнительного поля */}
-        <Box display="flex" gap={1} mt={2}>
-          <TextField
-            fullWidth
-            label="Название нового поля"
-            value={newField.name}
-            onChange={(e) => setNewField({ ...newField, name: e.target.value })}
-          />
-          <TextField
-            fullWidth
-            label="Значение нового поля"
-            value={newField.value}
-            onChange={(e) => setNewField({ ...newField, value: e.target.value })}
-          />
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              if (newField.name.trim() && newField.value.trim()) {
-                setContract(prev => ({
-                  ...prev,
-                  additionalFields: prev.additionalFields
-                    ? [...prev.additionalFields, { ...newField }]
-                    : [{ ...newField }]
-                }));
-                setNewField({ name: "", value: "" });
-              }
-            }}
-          >
-            +
-          </Button>
-        </Box>
+        {user?.role !== "client" &&
+          <Box display="flex" gap={1} mt={2}>
+            <TextField
+              fullWidth
+              label="Название нового поля"
+              value={newField.name}
+              onChange={(e) => setNewField({ ...newField, name: e.target.value })}
+            />
+            <TextField
+              fullWidth
+              label="Значение нового поля"
+              value={newField.value}
+              onChange={(e) => setNewField({ ...newField, value: e.target.value })}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                if (newField.name.trim() && newField.value.trim()) {
+                  setContract(prev => ({
+                    ...prev,
+                    additionalFields: prev.additionalFields
+                      ? [...prev.additionalFields, { ...newField }]
+                      : [{ ...newField }]
+                  }));
+                  setNewField({ name: "", value: "" });
+                }
+              }}
+            >
+              +
+            </Button>
+          </Box>
+        }
       </Box>
-
-
-
       <Typography variant="h6" style={{ marginTop: 20 }}>Статус: {contract.status}</Typography>
 
-      {contract.status !== "Подписан" && (
-        <Box mt={2}>
-          <Typography variant="h6">Подпись</Typography>
-          <SignatureCanvas
-            ref={signatureRef}
-            penColor="black"
-            canvasProps={{ width: 300, height: 100, className: "signatureCanvas" }}
-          />
-          <Button variant="contained" color="primary" onClick={handleSaveSignature} style={{ marginTop: 10 }}>
-            Сохранить подпись
-          </Button>
-        </Box>
-      )}
+      {user?.role !== "client" && <>
 
-      {contract.signature && (
-        <Box mt={2}>
-          <Typography variant="h6">Подпись:</Typography>
-          <img src={contract.signature} alt="Подпись" style={{ width: 200, height: 50 }} />
-        </Box>
-      )}
-
-      <Box mt={2}>
-        <Button
-          variant="outlined"
-          onClick={() => setHistoryOpen(!historyOpen)}
-          endIcon={historyOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        >
-          {historyOpen ? "Скрыть историю" : "Показать историю"}
-        </Button>
-
-        {historyOpen && (
-          <List>
-            {contract.history?.map((entry, index) => (
-              <ListItem key={index}>
-                <ListItemText primary={entry.action} secondary={entry.timestamp} />
-              </ListItem>
-            ))}
-          </List>
-        )}
-      </Box>
-
-
-      <Box mt={3} mb={3} display="flex" gap={2}>
-        <Button variant="contained" color="primary" onClick={handleSave}>Сохранить</Button>
-        <Button variant="outlined" color="secondary" onClick={() => navigate("/contracts")}>Назад</Button>
-        <Button variant="contained" color="success" onClick={handleDownloadPDF}>Скачать PDF</Button>
         {contract.status !== "Подписан" && (
-          <Button variant="contained" color="warning" onClick={handleSignContract}>Подписать договор</Button>
+          <Box mt={2}>
+            <Typography variant="h6">Подпись</Typography>
+            <SignatureCanvas
+              ref={signatureRef}
+              penColor="black"
+              canvasProps={{ width: 300, height: 100, className: "signatureCanvas" }}
+            />
+            <Button variant="contained" color="primary" onClick={handleSaveSignature} style={{ marginTop: 10 }}>
+              Сохранить подпись
+            </Button>
+          </Box>
         )}
-      </Box>
+
+        {contract.signature && (
+          <Box mt={2}>
+            <Typography variant="h6">Подпись:</Typography>
+            <img src={contract.signature} alt="Подпись" style={{ width: 200, height: 50 }} />
+          </Box>
+        )}
+
+        <Box mt={2}>
+          <Button
+            variant="outlined"
+            onClick={() => setHistoryOpen(!historyOpen)}
+            endIcon={historyOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+          >
+            {historyOpen ? "Скрыть историю" : "Показать историю"}
+          </Button>
+
+          {historyOpen && (
+            <List>
+              {contract.history?.map((entry, index) => (
+                <ListItem key={index}>
+                  <ListItemText primary={entry.action} secondary={entry.timestamp} />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Box>
+
+        <Box mt={3} mb={3} display="flex" gap={2}>
+          <Button variant="contained" color="primary" onClick={handleSave}>Сохранить</Button>
+          <Button variant="outlined" color="secondary" onClick={() => navigate("/contracts")}>Назад</Button>
+          <Button variant="contained" color="success" onClick={handleDownloadPDF}>Скачать PDF</Button>
+          {contract.status !== "Подписан" && (
+            <Button variant="contained" color="warning" onClick={handleSignContract}>Подписать договор</Button>
+          )}
+        </Box>
+      </>
+      }
+
+      {user?.role === "client" && <Button variant="outlined" sx={{mt: 2}} color="secondary" onClick={() => navigate("/client")}>Назад</Button>}
     </Container>
   );
 }

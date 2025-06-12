@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Tooltip, IconButton } from "@mui/material";
-import { Home, Description, AccountCircle, Menu as MenuIcon, ArrowBackIos } from "@mui/icons-material";
+import { Home, Description, AccountCircle, Menu as MenuIcon, ArrowBackIos, People, PeopleOutline } from "@mui/icons-material";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
 
 const Sidebar = () => {
   // Загружаем состояние меню из localStorage
@@ -9,17 +10,42 @@ const Sidebar = () => {
     return localStorage.getItem("sidebarOpen") === "true";
   });
 
+  const { user } = useAuth();
+
   const toggleSidebar = () => {
     const newState = !open;
     setOpen(newState);
     localStorage.setItem("sidebarOpen", newState);
   };
 
-  const menuItems = [
-    { text: "Главная", icon: <Home />, link: "/" },
-    { text: "Договоры", icon: <Description />, link: "/contracts" },
-    { text: "Профиль", icon: <AccountCircle />, link: "/profile" },
-  ];
+  // 🔥 Меню по ролям
+  const menuItems = user?.role === "lawyer"
+    ? [
+      { text: "Главная", icon: <Home />, link: "/" },
+      { text: "Договоры", icon: <Description />, link: "/contracts" },
+      { text: "Профиль", icon: <AccountCircle />, link: "/profile" },
+    ]
+    : user?.role === "client" ?
+      [
+        { text: "Мои договоры", icon: <Description />, link: "/client" },
+        { text: "Профиль", icon: <AccountCircle />, link: "/profile" },
+      ]
+      : user?.role === "admin" && [
+        { text: "Главная", icon: <Home />, link: "/" },
+        { text: "Договоры", icon: <Description />, link: "/contracts" },
+        { text: "Юристы", icon: <People />, link: "/lawyers" },
+        { text: "Клиенты", icon: <PeopleOutline />, link: "/clients" },
+        { text: "Профиль", icon: <AccountCircle />, link: "/profile" },
+      ]
+
+
+  // if (user?.role === "admin") {
+  //   menuItems.push(
+  //     { text: "Юристы", icon: <People />, link: "/lawyers" },
+  //     { text: "Клиенты", icon: <PeopleOutline />, link: "/clients" }
+  //   );
+  // }
+
 
   const location = useLocation(); // Получаем текущий маршрут
 

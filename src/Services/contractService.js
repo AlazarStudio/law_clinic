@@ -1,7 +1,9 @@
 const API_URL = "https://law-clinik-back.onrender.com/contracts";
 
+// Если userId передан — фильтруем, если нет — получаем все
 const getContracts = async (userId) => {
-  const res = await fetch(`${API_URL}?userId=${userId}`);
+  const url = userId ? `${API_URL}?userId=${userId}` : API_URL;
+  const res = await fetch(url);
   return await res.json();
 };
 

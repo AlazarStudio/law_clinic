@@ -22,10 +22,11 @@ function Contracts_Page() {
   }, [user]);
 
   const refreshContracts = async () => {
-    const data = await contractService.getContracts(user.id);
+    const data = await contractService.getContracts(user.role === "admin" ? null : user.id);
     setContracts(data);
-    filterContracts(data, search, statusFilter);
+    filterContracts(data, search, statusFilter, dateFilter);
   };
+
 
   const handleDelete = async (id) => {
     await contractService.deleteContract(id);

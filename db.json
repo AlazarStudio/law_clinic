@@ -4,19 +4,29 @@
       "id": "5914",
       "name": "Иванов Иван",
       "email": "ivanov@mail.ru",
-      "password": "ivanov"
+      "password": "ivanov",
+      "role": "lawyer"
     },
     {
       "id": "user2",
       "name": "Петров Петр",
       "email": "petrov@mail.ru",
-      "password": "petrov"
+      "password": "petrov",
+      "role": "lawyer"
     },
     {
       "id": "user3",
       "name": "Сергеев Сергей",
       "email": "sergeev@mail.ru",
-      "password": "sergeev"
+      "password": "sergeev",
+      "role": "lawyer"
+    },
+    {
+      "id": "c101",
+      "name": "Иван Петров",
+      "email": "ivan@mail.ru",
+      "password": "ivan",
+      "role": "client"
     }
   ],
   "contracts": [
