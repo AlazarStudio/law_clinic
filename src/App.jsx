@@ -6,7 +6,7 @@ import Contracts_Page from "./Components/Pages/Contracts_Page";
 import ContractDetails from "./Components/Pages/ContractDetails";
 import Non_Found_Page from "./Components/Pages/Non_Found_Page";
 import Layout from "./Components/Standart/Layout/Layout";
-import InstallButton from "./Components/Pages/InstallButton/InstallButton";
+// import InstallButton from "./Components/Pages/InstallButton/InstallButton";
 import ProfilePage from "./Components/Pages/ProfilePage";
 import { AuthProvider, useAuth } from "./AuthContext"; // ✅ без .jsx в конце
 import LoginPage from "./Components/Pages/LoginPage";
@@ -43,7 +43,7 @@ function App() {
       </Routes>
 
       {/* Кнопка установки */}
-      <InstallButton />
+      {/* <InstallButton /> */}
     </AuthProvider>
   );
 }

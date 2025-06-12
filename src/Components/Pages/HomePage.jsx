@@ -18,7 +18,12 @@ const HomePage = () => {
   useEffect(() => {
     const fetchContracts = async () => {
       if (!user) return;
-      const res = await fetch(`https://law-clinik-back.onrender.com/contracts?userId=${user.id}`);
+      const url = user.role === "admin"
+      ? `https://law-clinik-back.onrender.com/contracts`
+      : `https://law-clinik-back.onrender.com/contracts?userId=${user.id}`;
+
+      const res = await fetch(url);
+
       const data = await res.json();
       setContracts(
         data.sort((a, b) => new Date(a.endDate || "2100-01-01") - new Date(b.endDate || "2100-01-01"))
